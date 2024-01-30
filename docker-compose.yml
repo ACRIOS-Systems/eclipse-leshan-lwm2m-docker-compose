@@ -1,0 +1,72 @@
+version: "3.4"
+
+services:
+
+  leshan-server:
+    build:
+        context: leshan-server
+        dockerfile: Dockerfile
+    ports:
+      #- 8080:8080
+      - 5683:5683
+      - 5684:5684
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.leshan_server.rule=Host(`leshan-server.testvps.acrios.com`)"
+      - "traefik.http.routers.leshan_server.EntryPoints=web"
+      - "traefik.http.routers.leshan_server.middlewares=redir-https@file"
+      - "traefik.http.routers.leshan_server-https.EntryPoints=websecure"
+      - "traefik.http.routers.leshan_server-https.rule=Host(`leshan-server.testvps.acrios.com`)"
+      - "traefik.http.routers.leshan_server-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.leshan_server-https.tls=true"
+      - "traefik.http.services.leshan_server-https.loadbalancer.server.port=8080"
+    networks:
+      - "local"
+      - "proxy"
+    deploy:
+      resources:
+        limits:
+          memory: 1000M
+
+
+  leshan-bootstrap:
+    build:
+        context: leshan-bootstrap
+        dockerfile: Dockerfile
+    ports:
+      #- 8081:8081
+      - 5783:5783
+      - 5784:5784
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.leshan_bootstrap.rule=Host(`leshan-bootstrap.testvps.acrios.com`)"
+      - "traefik.http.routers.leshan_bootstrap.EntryPoints=web"
+      - "traefik.http.routers.leshan_bootstrap.middlewares=redir-https@file"
+      - "traefik.http.routers.leshan_bootstrap-https.EntryPoints=websecure"
+      - "traefik.http.routers.leshan_bootstrap-https.rule=Host(`leshan-bootstrap.testvps.acrios.com`)"
+      - "traefik.http.routers.leshan_bootstrap-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.leshan_bootstrap-https.tls=true"
+      - "traefik.http.services.leshan_bootstrap-https.loadbalancer.server.port=8081"
+    networks:
+      - "local"
+      - "proxy"
+    deploy:
+      resources:
+        limits:
+          memory: 1000M
+
+
+networks:
+  local:
+    external: False
+    ipam:
+      config:
+        - subnet: 172.111.255.0/24
+
+  proxy:
+    external: True
+
