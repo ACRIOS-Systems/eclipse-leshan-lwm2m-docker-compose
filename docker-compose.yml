@@ -8,8 +8,9 @@ services:
         dockerfile: Dockerfile
     ports:
       #- 8080:8080
-      - 5683:5683
-      - 5684:5684
+      - 5683:5683/udp # oscore coap
+      - 5684:5684/udp # coaps
+      - 5685:5685/udp # coap
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -37,8 +38,8 @@ services:
         dockerfile: Dockerfile
     ports:
       #- 8081:8081
-      - 5783:5783
-      - 5784:5784
+      - 5783:5783/udp
+      - 5784:5784/udp
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
